@@ -12,7 +12,7 @@ int main()
 
 	Vector qd0(0, 0, 0, 0, 0, 0);
 	Vector qdf(0, 0, 0, 0, 0, 0);
-	PtoP P1(q0,qf,linear,time,2,qd0,qdf,1);
+	PtoP P1(q0,qf,halfcos,speed,0.41,qd0,qdf,1);
 	//P1.realtime(0.4); 
 	P1.offline();
 	//double element = 1;
