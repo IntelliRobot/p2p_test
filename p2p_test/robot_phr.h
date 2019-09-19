@@ -143,7 +143,7 @@ public:
 	
 
 	
-	int Singularity_jump(const int index, Cartesian_Line &robot_traj);
+	//int Singularity_jump(const int index, Cartesian_Line &robot_traj);
 
 	void Singularity_cubic_rt(int N);
 	

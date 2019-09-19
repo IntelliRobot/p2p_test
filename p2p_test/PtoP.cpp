@@ -332,8 +332,8 @@ void PtoP::offline(double interval_out)
 	for (int i = 0; i < Na; i++)
 
 	{
-		double tt = i*t_interval;
-		realtime(tt);
+		//double tt = i*t_interval;
+		realtime(i);
 
 		outFile << i << ',' << qt(1) << ',' << qt(2) << ',' << qt(3) << ',' << qt(4)
 			<< ',' << qt(5) << ',' << qt(6) << endl;
@@ -345,8 +345,8 @@ void PtoP::offline(double interval_out)
 	for (int i = 0; i < Na; i++)
 
 	{
-		double tt = i*t_interval;
-		realtime(tt);
+		//double tt = i*t_interval;
+		realtime(i);
 
 		outFile << i << ',' << qddt(1) << ',' << qddt(2) << ',' << qddt(3) << ',' << qddt(4) 
 			<< ',' << qddt(5) << ',' << qddt(6) << endl;
@@ -358,8 +358,8 @@ void PtoP::offline(double interval_out)
 	for (int i = 0; i < Na; i++)
 
 	{
-		double tt = i*t_interval;
-		realtime(tt);
+		//double tt = i*t_interval;
+		realtime(i);
 
 		outFile << i << ',' << qdt(1) << ',' << qdt(2) << ',' << qdt(3) << ',' << qdt(4)
 			<< ',' << qdt(5) << ',' << qdt(6) << endl;

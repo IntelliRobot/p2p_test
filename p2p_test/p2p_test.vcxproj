@@ -124,7 +124,6 @@
     <ClInclude Include="PtoP.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="robot_phr.h" />
-    <ClInclude Include="Singularity_handle.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="vector.h" />
@@ -138,7 +137,6 @@
     <ClCompile Include="p2p_test.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="robot_phr.cpp" />
-    <ClCompile Include="Singularity_handle.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="vector.cpp" />
   </ItemGroup>

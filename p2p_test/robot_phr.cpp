@@ -821,48 +821,48 @@ void robot_phr::Singularity_monitor()
 
 
 
-int robot_phr::Singularity_jump(const int index,  Cartesian_Line &robot_traj)
-{
-	q_singular_start = q_n;
-	qd_singular_start = qd_n;
-	double K_last = Ksew_select(Ksew_L, Singular_flag);
-	double K_now = Ksew_select(Ksew_n, Singular_flag);;
-	double K_limit = Ksew_select(Ksew_limit, Singular_flag);
-	double K_slope = K_last - K_now;
-	double K_steps_temp = 2 * ceil(K_now / K_slope);
-	int K_adjuststeps = 0;
-	double K_steps = K_steps_temp + K_adjuststeps;
-	int j = index + K_steps + 1;
-	while (fabs(K_now)<K_limit)
-	{
-		K_steps = K_steps + K_adjuststeps;
-		j = index + K_steps + 1; //保险起见加1
-		robot_traj.N_now = j;
-
-		robot_traj.realtime(robot_traj.N_now);
-		mat_t60 = Ikine_Tcp2t6(robot_traj.PP_n);
-		matrix qIK8 = Ikine_matrix(mat_t60);
-		q_n = Ikine_nearest(qIK8, q_n);
-
-		qd_n = v2qd(robot_traj.V_n, q_n);
-
-		K_now = Ksew_select(Ksew_n, Singular_flag);
-		q_singular_end = q_n;
-		qd_singular_end = qd_n;
-		double delta_K = K_limit - fabs(K_now);
-		K_adjuststeps = ceil(delta_K / abs(K_slope)); //计算补充步数 j=index+k_jumpsteps+k_adjuststeps;
-		if (j>robot_traj.Na)
-		{
-			j = robot_traj.Na;
-			break;
-		}
-	}
-
-	Singular_cubic= PtoP(q_singular_start, q_singular_end, halfcos, speed, 0.1, qd_singular_start, qd_singular_end, 1);
-
-	return j;
-
-}
+//int robot_phr::Singularity_jump(const int index,  Cartesian_Line &robot_traj)
+//{
+//	q_singular_start = q_n;
+//	qd_singular_start = qd_n;
+//	double K_last = Ksew_select(Ksew_L, Singular_flag);
+//	double K_now = Ksew_select(Ksew_n, Singular_flag);;
+//	double K_limit = Ksew_select(Ksew_limit, Singular_flag);
+//	double K_slope = K_last - K_now;
+//	double K_steps_temp = 2 * ceil(K_now / K_slope);
+//	int K_adjuststeps = 0;
+//	double K_steps = K_steps_temp + K_adjuststeps;
+//	int j = index + K_steps + 1;
+//	while (fabs(K_now)<K_limit)
+//	{
+//		K_steps = K_steps + K_adjuststeps;
+//		j = index + K_steps + 1; //保险起见加1
+//		robot_traj.N_now = j;
+//
+//		robot_traj.realtime(robot_traj.N_now);
+//		mat_t60 = Ikine_Tcp2t6(robot_traj.PP_n);
+//		matrix qIK8 = Ikine_matrix(mat_t60);
+//		q_n = Ikine_nearest(qIK8, q_n);
+//
+//		qd_n = v2qd(robot_traj.V_n, q_n);
+//
+//		K_now = Ksew_select(Ksew_n, Singular_flag);
+//		q_singular_end = q_n;
+//		qd_singular_end = qd_n;
+//		double delta_K = K_limit - fabs(K_now);
+//		K_adjuststeps = ceil(delta_K / abs(K_slope)); //计算补充步数 j=index+k_jumpsteps+k_adjuststeps;
+//		if (j>robot_traj.Na)
+//		{
+//			j = robot_traj.Na;
+//			break;
+//		}
+//	}
+//
+//	Singular_cubic= PtoP(q_singular_start, q_singular_end, halfcos, speed, 0.1, qd_singular_start, qd_singular_end, 1);
+//
+//	return j;
+//
+//}
 
 void robot_phr::Singularity_cubic_rt(int N)
 {
