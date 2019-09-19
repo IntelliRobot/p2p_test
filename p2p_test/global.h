@@ -58,7 +58,7 @@
 	 double Kw;
  };
 
-
+ extern const Ksew Ksew_limit;
 
  struct Cubic_Coef
  {
@@ -112,4 +112,12 @@
  {
 	 Vector Posi;
 	 Quaternion Pose;
+ };
+
+ struct halfcos_blend
+ {
+	 Vector A;
+	 Vector B;
+	 Vector C;
+	 Vector E;
  };

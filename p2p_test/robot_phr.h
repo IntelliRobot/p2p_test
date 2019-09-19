@@ -8,7 +8,7 @@
 
 #include "global.h"
 
-#include "P2P.h"
+#include "PtoP.h"
 
 #include "Quaternion.h"
 
@@ -16,7 +16,7 @@
 
 #include "FunctionReturnMessage.h"
 
-#include "Cartesian_traj.h"
+#include "Cartesian_line.h"
 
 
 
@@ -84,6 +84,8 @@ public:
 	Vector vec_qn_e;
 		
 	double qd_percent;//最大角速度百分比
+
+	double t_interval = 0.01;
 	
 	
 	Vector q_singular_start;
@@ -104,11 +106,15 @@ public:
 
 	Ksew Ksew_temp;//关节奇异值临时值
 		
-	Ksew Ksew_limit;
+	//Ksew Ksew_limit;
 		
 	int Singular_flag = 0;
 
+	int Jspeed_exceed_flag = 0;
+
 	int CFG=0;
+
+	PtoP Singular_cubic;
 
 	//int CFG_temp = 0;
 		
@@ -137,12 +143,16 @@ public:
 	
 
 	
-	//int Singularity_jump(const int index, Cartesian_traj &robot_traj);
+	int Singularity_jump(const int index, Cartesian_Line &robot_traj);
+
+	void Singularity_cubic_rt(int N);
 	
 	double Ksew_select(const Ksew &Ksew, int Singular_flag);
 	
 	void Singularity_monitor();//奇异监控
 
+	void Joint_speed_monitor();
+	
 	Vector Ikine_nearest(const matrix &Tn, Vector &q_n);//matlab 对应 ik_Nearest_cfg
 
 	matrix Ikine_matrix(const matrix &Tn);//matlab 对应 ikine_num_sub
@@ -162,8 +172,8 @@ public:
 	matrix invJ_num_sub_11(const Vector &q);
 	matrix invJ_num_sub_22(const Vector &q);
 	Vector JJdot_qdot_num(const Vector &q, const Vector &qdot);
-	Vector qd2v(const Vector &qd, const Vector &q);
-	Vector V2qd(const Vector &v, const Vector &q);
-
-
+	Vector qd2v(const Vector &q, const Vector &qd);
+	Vector v2qd(const Vector &v, const Vector &q);
+	Vector qdd2a(const Vector &q, const Vector &qd, const Vector &qdd);
+	Vector a2qdd(const Vector &a, const Vector &q, const Vector &qd);
 };

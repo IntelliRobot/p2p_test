@@ -1,0 +1,13 @@
+#pragma once
+#include "stdafx.h"
+#include "Vector.h"
+#include "Quaternion.h"
+#include "global.h"
+#include "math_addition.h"
+#include "Posture_Interp.h"
+#include "Cartesian_Line.h"
+#include "robot_phr.h"
+#include <math.h>
+#include <iostream>
+#include <fstream> 
+void ikine_robot_traj();

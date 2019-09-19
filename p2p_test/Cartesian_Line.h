@@ -51,6 +51,7 @@ public:
 	P2Pmethod cht;
 	double acce_percent = 0.8;
 	double speed_percent = 0.8;
+	int tf_max_index = 0;
 
 	//Vector V_0;
 	//Vector V_f;
@@ -72,5 +73,5 @@ public:
 	void linear_coef();
 	void trapez_coefs();
 	void realtime_PVA();
-	void realtime(double t);
+	void realtime(int N);
 };

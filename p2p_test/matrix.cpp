@@ -96,7 +96,7 @@ matrix::~matrix()
 	{ 
 //		delete[] RVector.pVector;
 		//RVector.~Vector(); 
-		cout << "matrix deconstruct" << endl;
+		//cout << "matrix deconstruct" << endl;
 		delete[] pMatrix; 
 		RVector.pVector = NULL;//释放向量空间，以免二次析构；
 

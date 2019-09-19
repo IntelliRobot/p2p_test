@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "robot_phr.h"
 #include "math.h"
+//#include "PtoP.h"
+
 
 
 robot_phr::robot_phr(const DH_PARA dh)
@@ -149,6 +151,7 @@ Vector robot_phr::Ikine_nearest(const matrix &Tn, Vector &q_n)
 	//寻找与q0的cfg相同的一组解
 	//Vector qIK_N1(Q_samecfg(qIK8, q_n));
 	Vector qIK_N1(Ikine_cfg(Tn, CFG));
+
 	Ksew_L = Ksew_n;
 	//CFG = Qcfg_K(q_n);
 	Ksew_n = Ksew_temp;
@@ -233,6 +236,8 @@ Vector robot_phr::Ikine_nearest(const matrix &Tn, Vector &q_n)
 	Vector qIK(qIK_N2.SubMatrix(I, 1, I, qIK_N2.COL).AsVector());
 	q_L = q_n;
 	q_n = qIK;
+
+
 
 	return q_n;
 
@@ -783,31 +788,31 @@ double robot_phr::Ksew_select(const Ksew &Ksew, int Singular_flag)
 		K_select = Ksew.Kw;
 		break;
 	}
-	return K_select;
+	
 	
 	}
+	return K_select;
 
 }
 
 
 void robot_phr::Singularity_monitor()
-
-
-
 {
 	Singular_flag = 0;
+
+
 	
-	if (Ksew_n.Ks < Ksew_limit.Ks)
+	if (fabs(Ksew_n.Ks) < Ksew_limit.Ks)
 	{
 		Singular_flag = 1;
 	}
 	
-	if (Ksew_n.Ke < Ksew_limit.Ke)
+	if (fabs(Ksew_n.Ke) < Ksew_limit.Ke)
 	{		
 		Singular_flag = 2;		
 	}
 	
-	if (Ksew_n.Kw < Ksew_limit.Kw)
+	if (fabs(Ksew_n.Kw) < Ksew_limit.Kw)
 	{
 		Singular_flag = 3;
 	}
@@ -816,40 +821,79 @@ void robot_phr::Singularity_monitor()
 
 
 
-//int robot_phr::Singularity_jump(const int index,  Cartesian_traj &robot_traj)
-//{
-//	double K_last = Ksew_select(Ksew_L, Singular_flag);
-//	double K_now = Ksew_select(Ksew_n, Singular_flag);;
-//	double K_limit = Ksew_select(Ksew_limit, Singular_flag);
-//	double K_slope = K_last - K_now;
-//	double K_steps_temp = 2 * ceil(K_now / K_slope);
-//	int K_adjuststeps = 0;
-//	double K_steps = K_steps_temp + K_adjuststeps;
-//	int j = index + K_steps + 1;
-//	while (fabs(K_now)<K_limit)
-//	{
-//		K_steps = K_steps + K_adjuststeps;
-//		j = index + K_steps + 1; //保险起见加1
-//		double tt = j*robot_traj.t_interval;
-//		robot_traj.realtime(tt);
-//		matrix T_n = Ikine_Tcp2t6(robot_traj.PP_n);
-//		Ikine_nearest(T_n,q_n);
-//		K_now = Ksew_select(Ksew_n, Singular_flag);
-//		q_singular_end = q_n;
-//		qd_singular_end = qd_n;
-//		double delta_K = K_limit - fabs(K_now);
-//		K_adjuststeps = ceil(delta_K / abs(K_slope)); //计算补充步数 j=index+k_jumpsteps+k_adjuststeps;
-//		if (j>robot_traj.Na)
-//		{
-//			j = robot_traj.Na;
-//			break;
-//		}
-//	}
-//	return j;
-//
-//}
+int robot_phr::Singularity_jump(const int index,  Cartesian_Line &robot_traj)
+{
+	q_singular_start = q_n;
+	qd_singular_start = qd_n;
+	double K_last = Ksew_select(Ksew_L, Singular_flag);
+	double K_now = Ksew_select(Ksew_n, Singular_flag);;
+	double K_limit = Ksew_select(Ksew_limit, Singular_flag);
+	double K_slope = K_last - K_now;
+	double K_steps_temp = 2 * ceil(K_now / K_slope);
+	int K_adjuststeps = 0;
+	double K_steps = K_steps_temp + K_adjuststeps;
+	int j = index + K_steps + 1;
+	while (fabs(K_now)<K_limit)
+	{
+		K_steps = K_steps + K_adjuststeps;
+		j = index + K_steps + 1; //保险起见加1
+		robot_traj.N_now = j;
 
+		robot_traj.realtime(robot_traj.N_now);
+		mat_t60 = Ikine_Tcp2t6(robot_traj.PP_n);
+		matrix qIK8 = Ikine_matrix(mat_t60);
+		q_n = Ikine_nearest(qIK8, q_n);
 
+		qd_n = v2qd(robot_traj.V_n, q_n);
+
+		K_now = Ksew_select(Ksew_n, Singular_flag);
+		q_singular_end = q_n;
+		qd_singular_end = qd_n;
+		double delta_K = K_limit - fabs(K_now);
+		K_adjuststeps = ceil(delta_K / abs(K_slope)); //计算补充步数 j=index+k_jumpsteps+k_adjuststeps;
+		if (j>robot_traj.Na)
+		{
+			j = robot_traj.Na;
+			break;
+		}
+	}
+
+	Singular_cubic= PtoP(q_singular_start, q_singular_end, halfcos, speed, 0.1, qd_singular_start, qd_singular_end, 1);
+
+	return j;
+
+}
+
+void robot_phr::Singularity_cubic_rt(int N)
+{
+	Singular_cubic.realtime(N);
+	q_L = q_n;
+	q_n = Singular_cubic.qt;
+	qd_n= Singular_cubic.qdt;
+	qdd_n = Singular_cubic.qddt;
+	/*for (int i = 0; i < Singular_cubic.Na; i++)
+	{
+		tt = i*Singular_cubic.t_interval;
+		Singular_cubic.realtime(tt);
+		q_n = Singular_cubic.qt;
+	}*/
+
+}
+
+void robot_phr::Joint_speed_monitor()
+{
+	//轴速度监控
+	Vector deltaq = q_n -q_L;
+	Vector dettaqd = deltaq.Abs() /t_interval - Qd_max;
+
+	if (dettaqd.Max(Jspeed_exceed_flag)>0)
+	{
+		double percent = dettaqd(Jspeed_exceed_flag) / Qd_max(Jspeed_exceed_flag);//超速百分比
+				
+		printf("%i轴超速,需增加百分之%f时间 \n", Jspeed_exceed_flag,percent*100);
+		//throw("轴超速");
+	}
+}
 
 
 
@@ -1172,7 +1216,7 @@ Vector robot_phr::JJdot_qdot_num(const Vector &q, const Vector &qdot)
 	return Jdot_qdot;
 }
 
-Vector robot_phr::qd2v(const Vector &qd, const Vector &q)
+Vector robot_phr::qd2v(const Vector &q, const Vector &qd)
 {
 	Vector vxqd(6, VERT);
 	Vector vxq(6, VERT);
@@ -1199,7 +1243,7 @@ Vector robot_phr::qd2v(const Vector &qd, const Vector &q)
 	return vx;
 }
 
-Vector robot_phr::V2qd(const Vector &v, const Vector &q)
+Vector robot_phr::v2qd(const Vector &v, const Vector &q)
 {
 	Vector vxv(6, VERT);
 	Vector vxq(6, VERT);
@@ -1257,4 +1301,17 @@ Vector robot_phr::V2qd(const Vector &v, const Vector &q)
 		}
 	}
 	return vxqd;
+}
+
+Vector robot_phr::qdd2a(const Vector &q, const Vector &qd, const Vector &qdd)
+{
+	Vector aa_temp1 = qd2v(qd, q);
+	Vector aa_temp2 = JJdot_qdot_num(q, qd);
+	return aa_temp1 + aa_temp2;
+}
+Vector robot_phr::a2qdd(const Vector &a, const Vector &q, const Vector &qd)
+{
+	Vector aa_temp= a-JJdot_qdot_num(q, qd);
+
+	return v2qd(aa_temp, q);
 }

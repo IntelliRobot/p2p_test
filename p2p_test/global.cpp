@@ -25,7 +25,7 @@ const DH_PARA robot_left_dh = { 200,850,165,400,0,800,205 };
 const DH_PARA robot_right_dh = { 200,850,165,400,0,800,205 };
 const DH_PARA robot_efort = { 168.8375,781.2877,140.4575,504,-0.2077,760.5119,268 };
 const double Epsilon = 0.000001;
-
+const Ksew Ksew_limit = {50,0.1,0.1};
 const double V_max=2000;//最大线速度,mm/s
 const double Vd_max=2*V_max;////最大线加速度mm/s2
 const double W_max= 180 * PI / 180;//最大角速度
